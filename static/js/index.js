@@ -14,10 +14,29 @@ let matrix = getMartix(
 setPositionItems(matrix);
 
 //** 2. Shuffle**//
-document.getElementById("shuffle").addEventListener("click",()=>{
+/*document.getElementById("shuffle").addEventListener("click",()=>{
     const shuffledArr=shuffleArr(matrix.flat());
     matrix= getMartix(shuffledArr);
     setPositionItems(matrix);
+})*/
+const maxShuffleCount=500;
+document.getElementById("shuffle").addEventListener("click",()=>{
+
+    let timer;
+    let ShuffleCount=0;
+    clearInterval(timer);
+    if(ShuffleCount===0){
+        timer=setInterval(()=>{
+            randomSwap(matrix);
+            setPositionItems(matrix);
+
+            ShuffleCount+=1;
+            if(ShuffleCount>=maxShuffleCount){
+                ShuffleCount=0;
+                clearInterval(timer);
+            }
+        },10);
+    }
 })
 
 //** 3. Change Position**//
@@ -153,4 +172,26 @@ function addWonClass() {
          containerNode.classList.remove(wonClass)
      },1000);
  },400)
+}
+function randomSwap() {
+    const blankCoords=findCoordinatesByNumber(blankNumber,matrix);
+    const validCoords=findValidCoords({
+        blankCoords,
+        matrix,
+    })
+    const swapCoords=validCoords[
+        Math.floor(Math.random()*validCoords.length)
+        ];
+    swap(blankCoords,swapCoords,matrix);
+}
+function findValidCoords({blankCoords,matrix}) {
+const validCoords=[];
+    for(let y=0;y<matrix.length;y++){
+        for (let x=0;x<matrix[y].length;x++){
+            if(isValidForSwap({x,y},blankCoords)){
+                validCoords.push({x,y})
+            }
+        }
+    }
+ return validCoords;
 }
