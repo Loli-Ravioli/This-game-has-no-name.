@@ -1,3 +1,4 @@
+const gamenode = document.getElementById("game")
 const containerNode = document.getElementById("fifteen");
 const itemNodes=Array.from(containerNode.querySelectorAll(".item"));
 const countItems=16;
@@ -14,10 +15,32 @@ let matrix = getMartix(
 setPositionItems(matrix);
 
 //** 2. Shuffle**//
-document.getElementById("shuffle").addEventListener("click",()=>{
+/*document.getElementById("shuffle").addEventListener("click",()=>{
     const shuffledArr=shuffleArr(matrix.flat());
     matrix= getMartix(shuffledArr);
     setPositionItems(matrix);
+})*/
+
+const shaffleClassName="gameShuffle"
+const maxShuffleCount=50;
+let timer;
+let ShuffleCount=0;
+document.getElementById("shuffle").addEventListener("click",()=>{
+
+    let ShuffleCount=0;
+    clearInterval(timer);
+    gamenode.classList.add(shaffleClassName);
+
+        timer=setInterval(()=>{
+            randomSwap(matrix);
+            setPositionItems(matrix);
+            ShuffleCount+=1;
+            if(ShuffleCount>=maxShuffleCount){
+                gamenode.classList.remove(shaffleClassName)
+                clearInterval(timer);
+            }
+        },70);
+
 })
 
 //** 3. Change Position**//
@@ -153,4 +176,33 @@ function addWonClass() {
          containerNode.classList.remove(wonClass)
      },1000);
  },400)
+}
+
+let blockedCoord=null;
+function randomSwap() {
+    const blankCoords=findCoordinatesByNumber(blankNumber,matrix);
+    const validCoords=findValidCoords({
+        blankCoords,
+        matrix,
+        blockedCoord,
+    })
+    const swapCoords=validCoords[
+        Math.floor(Math.random()*validCoords.length)
+        ];
+    swap(blankCoords,swapCoords,matrix);
+    blockedCoord= blankCoords;
+}
+function findValidCoords({blankCoords,matrix,blockedCoord}) {
+const validCoords=[];
+    for(let y=0;y<matrix.length;y++){
+        for (let x=0;x<matrix[y].length;x++){
+            if(isValidForSwap({x,y},blankCoords)){
+                if(!blockedCoord || !(blockedCoord.x===x && blockedCoord.y===y)){
+                    validCoords.push({x,y})
+                }
+
+            }
+        }
+    }
+ return validCoords;
 }
